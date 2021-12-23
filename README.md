@@ -7,6 +7,13 @@
 A repository of code that interacts with Amazon Web Services (AWS)
 
 ## AutoEC2
+---
+**TIP**
+
+This Script is currently untested and has DryRun flags set to True, the production script is coming soon.
+
+---
+
 This script is an interactive way to create EC2 instances with pre-installed commonly used software
 
 ### Getting Started
