@@ -35,8 +35,8 @@ def delay_print_slow(s):
         sys.stdout.flush()
         time.sleep(0.2)
     return None
-def create_key_pair():
-    ec2_client = boto3.client("ec2", region_name="us-west-2")
+def create_key_pair(selected_region):
+    ec2_client = boto3.client("ec2", region_name=selected_region)
     key_pair = ec2_client.create_key_pair(KeyName="ec2-key-pair")
     private_key = key_pair["KeyMaterial"]
     # write private key to file with 400 permissions
@@ -323,11 +323,11 @@ selected_subnet = sel5
 selected_subnetid = subnet_dict[sel5]
 print(selected_subnet, selected_subnetid)
 
-print("WARNING EXIT NOW!!!!"
-      "==============================================================================================================="
-      "WARNING EXIT NOW!!!!!!"
-      "===============================================================================================================")
-time.sleep(600000)
+# print("WARNING EXIT NOW!!!!"
+#       "==============================================================================================================="
+#       "WARNING EXIT NOW!!!!!!"
+#       "===============================================================================================================")
+# time.sleep(600000)
 
 #####################################################################################################################
 #                                                   Storage                                                         #
