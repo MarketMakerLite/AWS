@@ -471,7 +471,7 @@ if volume_type == 'gp3':
     'Ebs': {
         'throughput': throughput,
         'iops': iops,
-        'encrypted': {selected_encryption},
+        'encrypted': selected_encryption,
         'DeleteOnTermination': delete_on_term,
         'VolumeSize': volume_size,
         'VolumeType': volume_type
