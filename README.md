@@ -12,19 +12,45 @@ This script is an interactive way to create EC2 instances with pre-installed com
 ### Getting Started
 You must have an AWS account to use this script, you can sign up for a free account here: https://portal.aws.amazon.com/billing/signup?#/start
 
-It's recommended that you also install AWS-CLI, however, the script can handle creating the configuration files for you. You will need access to your access key; to create a new access key, visit this link: https://console.aws.amazon.com/iam/home?#/security_credentials
+It's recommended that you also install AWS-CLI, however, the script can handle creating the configuration files for you. You will need access to your access key to create new configuration files; to create a new access key, visit this link: https://console.aws.amazon.com/iam/home?#/security_credentials
 
 Ensure that you have Python and virtualenv installed, set up your environment and install the required dependencies like this:
 
-UNIX:
-```cd AutoEC2
+Unix:
+
+```
+cd AutoEC2
 python3 -m virtualenv venv
 source venv/bin/activate
-pip install -r requirements.txt```
+pip install -r requirements.txt
+```
+
 
 Windows:
-```cd AutoEC2
+
+```
+cd AutoEC2
 py -m venv venv
 call venv/scripts/activate
-pip install -r requirements.txt```
+pip install -r requirements.txt
+```
+
+Run the script by calling the following: 
+
+Unix:
+
+```
+python3 main.py
+```
+
+
+Windows:
+
+```
+py main.py
+```
+
+Then follow the interactive prompts. 
+
+
 
