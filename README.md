@@ -10,7 +10,7 @@ A repository of code that interacts with Amazon Web Services (AWS)
 ---
 **TIP**
 
-This Script is currently untested and has DryRun flags set to True, the production script is coming soon.
+This script is currently untested and has DryRun flags set to True, the production script is coming soon.
 
 ---
 
