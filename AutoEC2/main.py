@@ -870,12 +870,16 @@ while sg_view_existing in no_list:
         if add_another_rule in no_list:
             add_tv = 'yes'
             while add_tv not in no_list:
-                add_tv = input(f'Would you like to add TradingView IPs to allow TV webhooks? (y/n): ')
+                print("We can automatically allow TradingView Webhooks to connect to your instance. "
+                      "Learn more about TradingView Webhooks here: "
+                      "https://www.tradingview.com/support/solutions/43000529348-about-webhooks/")
+                add_tv = input(f'Would you like to permission TradingView IPs to allow Webhooks? (y/n): ')
                 if add_tv in yes_list:
                     tv_ips = ['52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7']
-                    port = '443'
-                    for ip in tv_ips:
-                        security_group_rules.append(custom_sg_rule(port, ip))
+                    ports = ['80', '443']
+                    for port in ports:
+                        for ip in tv_ips:
+                            security_group_rules.append(custom_sg_rule(port, ip))
                     break
             break
 
