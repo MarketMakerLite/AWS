@@ -121,6 +121,7 @@ started = datetime.now().strftime("%Y-%m-%d %I:%M:%S")
 yes_list = ['yes', 'Yes', 'y', 'ye', 'Ye']
 no_list = ['no', 'No', 'n', 'exit', 'Exit', 'new', 'New']
 image_id = 'ami-0fb653ca2d3203ac1'  # Ubuntu 20.04 LTS
+dry_run = True
 delay_print_fast("Welcome to the MML Auto-EC2 Generator")
 delay_print_slow("... ")
 delay_print_fast("Make an instance you deserve")
@@ -140,7 +141,7 @@ try:
     cid = sts.get_caller_identity()
     ec2_client = boto3.client('ec2')
     default_region = ec2_client.meta.region_name
-    print(f"Credentials are valid. Logged in as {cid['UserId']}. Your default region is {default_region}")
+    print(f"Credentials are valid. Logged in as {cid['UserId']}. Your default region is {default_region}.")
 
 except Exception:
     print("AWS-CLI configuration not found. Please login to continue. You will need your AWS Access Key ID and AWS Secret Access Key. "
@@ -314,8 +315,9 @@ sel3 = input(f"Would you like to review a list of available subnets? (y/n): ")
 subnet_dict = {}
 if sel3 in yes_list:
     for subnet in sn_all['Subnets']:
-        print(f"{subnet['AvailabilityZone']} ({subnet['AvailabilityZoneId']})")
-        subnet_dict[subnet['AvailabilityZone']] = subnet['AvailabilityZoneId']
+        # print(f"{subnet['AvailabilityZone']} ({subnet['AvailabilityZoneId']})")
+        print(f"{subnet['AvailabilityZone']}")
+        subnet_dict[subnet['AvailabilityZone']] = subnet['SubnetId']
 
 subnet_list = [*subnet_dict]
 default_subnet = subnet_list[0]
@@ -341,7 +343,7 @@ print(f"************************************************************************
 
 selected_subnet = sel5
 selected_subnetid = subnet_dict[sel5]
-print(selected_subnet, selected_subnetid)
+# print(selected_subnet, selected_subnetid)
 
 # print("WARNING EXIT NOW!!!!"
 #       "==============================================================================================================="
@@ -360,7 +362,6 @@ time.sleep(1)
 """Select Volume Type"""
 print(f"Please review the instance types below: ")
 volume_type_dict = {1: 'gp3', 2: 'gp2', 3: 'io2', 4: 'io1'}
-print(volume_type_dict)
 volume_type = 'gp3'
 volume_type_confirm = 'no'
 while volume_type_confirm not in yes_list:
@@ -377,7 +378,6 @@ while volume_type_confirm not in yes_list:
             volume_type = volume_type_dict[volume_type_sel]
     except Exception:
         print("This is not a valid volume type, please try again")
-print(volume_type)
 
 while True:
     volume_size = input(f"Please enter the desired size of the root volume (between 8GB and 16TB): ")
@@ -489,9 +489,9 @@ if volume_type == 'gp3':
     block_device_mappings = [{
     'DeviceName': '/dev/sda1',
     'Ebs': {
-        'throughput': throughput,
-        'iops': iops,
-        'encrypted': selected_encryption,
+        'Throughput': throughput,
+        'Iops': iops,
+        'Encrypted': selected_encryption,
         'DeleteOnTermination': delete_on_term,
         'VolumeSize': volume_size,
         'VolumeType': volume_type
@@ -503,8 +503,8 @@ elif volume_type in ['io1', 'io2']:
     block_device_mappings = [{
     'DeviceName': '/dev/sda1',
     'Ebs': {
-        'iops': iops,
-        'encrypted': selected_encryption,
+        'Iops': iops,
+        'Encrypted': selected_encryption,
         'DeleteOnTermination': delete_on_term,
         'VolumeSize': volume_size,
         'VolumeType': volume_type
@@ -517,7 +517,7 @@ else:
     block_device_mappings = [{
     'DeviceName': '/dev/sda1',
     'Ebs': {
-        'encrypted': selected_encryption,
+        'Encrypted': selected_encryption,
         'DeleteOnTermination': delete_on_term,
         'VolumeSize': volume_size,
         'VolumeType': volume_type
@@ -527,15 +527,16 @@ else:
     throughput = 'n/a'
     iops = 'n/a'
 
-print(f"-----------------------------------------------\n"
+time.sleep(1)
+print(f"********************************************************************************************\n"
       f"You've confirmed the following volume settings:\n"
       f"Volume type: {volume_type}\n"
-      f"Volume size: {volume_size}\n"
+      f"Volume size: {volume_size} GB\n"
       f"Throughput: {throughput}\n"
-      f"IOS: {iops}\n"
-      f"Delete Volume with Instance: {delete_on_term}\n"
+      f"IOPS: {iops}\n"
       f"Volume encryption: {selected_encryption}\n"
-      f"-----------------------------------------------")
+      f"Delete Volume with Instance: {delete_on_term}\n"
+      f"********************************************************************************************")
 time.sleep(1)
 
 #####################################################################################################################
@@ -707,13 +708,14 @@ for i in toppings_list:
 print(f"********************************************************************************************\n"
       f"You've confirmed your software as: {confirmed_software}"
       f"\n********************************************************************************************")
+time.sleep(1)
 
 ######################################################################################################################
 #                                                  Create Security Group                                             #
 ######################################################################################################################
 print("Now, we will setup the Secruity Group for your EC2 instance, to learn more about AWS Security Groups, please visit this link:"
       "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html")
-
+time.sleep(1)
 """Get Existing Security Groups"""
 spin = start_spinner(busy_text='Loading Security Group Settings...')
 existing_security_groups = ec2_client.describe_security_groups()
@@ -893,7 +895,7 @@ while sg_view_existing in no_list:
         response = ec2_client.create_security_group(GroupName=security_group_name,
                                                     Description=description,
                                                     VpcId=vpc_id,
-                                                    DryRun=True)
+                                                    DryRun=dry_run)
         security_group_id = response['GroupId']
         print(f'Created Security Group {security_group_id} in vpc {vpc_id}.')
 
@@ -901,7 +903,7 @@ while sg_view_existing in no_list:
         data = ec2_client.authorize_security_group_ingress(
             GroupId=security_group_id,
             IpPermissions=security_group_rules,
-            DryRun=True
+            DryRun=dry_run
         )
 
     except Exception as e:
@@ -910,14 +912,19 @@ while sg_view_existing in no_list:
     stop_spinner(spin, done_text=f'Security Group Created: {security_group_name}')
     break
 
+time.sleep(1)
+
 ######################################################################################################################
 #                                               Create Instance                                                      #
 ######################################################################################################################
+print(f"We will now create your instance")
+input(f"Press any key to continue")
+
 time.sleep(1)
 """Create EC2 Instance"""
 spin = start_spinner(busy_text='Creating instance...')
-response = ec2_client.create_instances(
-    BlockDeviceMappings=block_device_mappings,
+response = ec2_client.run_instances(
+    BlockDeviceMappings=block_device_mappings[0],
     ImageId=image_id,
     InstanceType=selected_type,
     SubnetId=selected_subnetid,
@@ -933,7 +940,7 @@ response = ec2_client.create_instances(
     SecurityGroupIds=[
         f'{security_group_id}',
     ],
-    DryRun=True
+    DryRun=dry_run
     )
 instance_id = response[0].id
 stop_spinner(spin, done_text=f'Instance created, ID: {instance_id} ')
@@ -951,7 +958,7 @@ allocate_elip = ec2_client.allocate_address(
     PublicIpv4Pool='string',
     NetworkBorderGroup='string',
     CustomerOwnedIpv4Pool='string',
-    DryRun=True,
+    DryRun=dry_run,
 )
 public_ip = allocate_elip['PublicIp']
 stop_spinner(spin, done_text=f'Elastic IP created, IP: {public_ip}')
@@ -966,7 +973,7 @@ associate_elip = ec2_client.associate_address(
     # NetworkInterfaceId=None,
     # PrivateIpAddress=None,
     AllowReassociation=False,
-    DryRun=True
+    DryRun=dry_run
 )
 spin.stop()
 stop_spinner(spin, done_text=f'Elastic IP {public_ip} associated with instance {instance_id}')
