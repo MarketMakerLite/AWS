@@ -21,20 +21,28 @@ def start_spinner(busy_text='Loading', t=1):
     spin.start()
     time.sleep(t)
     return spin
+
+
 def stop_spinner(spin, done_text='Complete'):
     spin.stop_and_persist(symbol='✔'.encode('utf-8'), text=f'{done_text}')
     return None
+
+
 def delay_print_fast(s):
     for c in s:
         sys.stdout.write(c)
         sys.stdout.flush()
     return None
+
+
 def delay_print_slow(s):
     for c in s:
         sys.stdout.write(c)
         sys.stdout.flush()
         time.sleep(0.2)
     return None
+
+
 def create_key_pair(selected_region):
     ec2_client = boto3.client("ec2", region_name=selected_region)
     key_pair = ec2_client.create_key_pair(KeyName="ec2-key-pair")
@@ -43,6 +51,8 @@ def create_key_pair(selected_region):
     with os.fdopen(os.open("/tmp/aws_ec2_key.pem", os.O_WRONLY | os.O_CREAT, 0o400), "w+") as handle:
         handle.write(private_key)
     return None
+
+
 def get_running_instances():
     ec2_client = boto3.client("ec2", region_name="us-west-2")
     reservations = ec2_client.describe_instances(Filters=[
@@ -59,11 +69,15 @@ def get_running_instances():
             private_ip = instance["PrivateIpAddress"]
             print(f"{instance_id}, {instance_type}, {public_ip}, {private_ip}")
     return None
+
+
 def load_regions():
     regions = [region['RegionName'] for region in ec2_client.describe_regions()['Regions']]
     region_count = [i for i in range(1, len(regions) + 1)]
     region_dict = {i: j for i, j in zip(region_count, regions)}
     return regions, region_count, region_dict
+
+
 def ec2_instance_types(ec2_client):
     """Yield all available EC2 instance types in region <region_name>"""
     describe_args = {}
@@ -74,17 +88,23 @@ def ec2_instance_types(ec2_client):
             break
         describe_args['NextToken'] = describe_result['NextToken']
     return None
+
+
 def print_instance_types(ec2_client):
     result = [ec2_type for ec2_type in ec2_instance_types(ec2_client)]
     result.sort()
     for ec2_type in result:
         print(ec2_type)
     return None
+
+
 def get_external_ip():
     spin = start_spinner(busy_text='Getting your external IP address...')
     external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
     spin.stop()
     return external_ip
+
+
 def custom_sg_rule(port, custom_ip):
     custom_rule = {
         'IpProtocol': 'tcp',
@@ -779,14 +799,7 @@ while sg_view_existing in no_list:
          'ToPort': 22,
          'IpRanges': [{'CidrIp': f'{external_ip}/0'}]}
     ]
-    # port = 22
-    # custom_ip = '0.0.0.0'
-    # custom_rule = {
-    #     'IpProtocol': 'tcp',
-    #     'FromPort': f'{port}',
-    #     'ToPort': f'{port}',
-    #     'IpRanges': [{'CidrIp': f'{custom_ip}/0'}]
-    # }
+
     psql_rule = {
         'IpProtocol': 'tcp',
         'FromPort': '5432',
@@ -852,10 +865,18 @@ while sg_view_existing in no_list:
             except Exception:
                 print("That's not a valid port, please start over")
                 continue
-            # print(custom_sg_rule(port, custom_ip))
             security_group_rules.append(custom_sg_rule(port, custom_ip))
             print(f"Successfully added IP address {custom_ip} / Port {port}")
         if add_another_rule in no_list:
+            add_tv = 'yes'
+            while add_tv not in no_list:
+                add_tv = input(f'Would you like to add TradingView IPs to allow TV webhooks? (y/n): ')
+                if add_tv in yes_list:
+                    tv_ips = ['52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7']
+                    port = '443'
+                    for ip in tv_ips:
+                        security_group_rules.append(custom_sg_rule(port, ip))
+                    break
             break
 
     """Create Security Group"""
