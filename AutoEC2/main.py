@@ -345,12 +345,6 @@ selected_subnet = sel5
 selected_subnetid = subnet_dict[sel5]
 # print(selected_subnet, selected_subnetid)
 
-# print("WARNING EXIT NOW!!!!"
-#       "==============================================================================================================="
-#       "WARNING EXIT NOW!!!!!!"
-#       "===============================================================================================================")
-# time.sleep(600000)
-
 #####################################################################################################################
 #                                                   Storage                                                         #
 #####################################################################################################################
@@ -911,6 +905,27 @@ while sg_view_existing in no_list:
 
     stop_spinner(spin, done_text=f'Security Group Created: {security_group_name}')
     break
+
+time.sleep(1)
+
+"""Create Key Pair"""
+confirm_key = 'n'
+while confirm_key not in yes_list:
+    create_key = input(f"Do you need a new keypair.pem? If this is your first instance choose 'yes' (y/n): ")
+    if create_key in yes_list:
+        confirm_key = input(f"You've selected to create a new keypair, is this correct? (y/n): ")
+        if confirm_key in yes_list:
+            spin = start_spinner(busy_text='Creating Key Pair')
+            key = ec2_client.create_key_pair(KeyName=f'keypair_{secrets.token_hex(2)}', KeyType='rsa')
+            with open(f'keypair_{secrets.token_hex(2)}.pem', 'w') as file:
+                file.write(key['KeyMaterial'])
+            spin.stop()
+    if create_key in no_list:
+        confirm_key = input(f"You've selected to not create a new keypair, is this correct? (y/n): ")
+        if confirm_key in yes_list:
+            break
+        else:
+            continue
 
 time.sleep(1)
 
