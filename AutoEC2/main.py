@@ -1010,7 +1010,7 @@ file = open(f"{file_name}", "w")
 file.write(f"Your MML Auto-EC2 Generator Summary\n"
            f"------------------------------------\n"
            f"Instance URL: https://us-east-2.console.aws.amazon.com/ec2/v2/home?region={selected_region}#InstanceDetails:instanceId={instance_id}"
-           f"Connect to your instance with the following command: ssh -i {key_pair_location} ubuntu@{public_ip} \n"
+           f"Connect to your instance with the following command: ssh -i '{key_pair_location}' ubuntu@{public_ip} \n"
            f"Start time: {started}, total run time: {run_time}\n"
            f"Image name: {image_id}, image ID: {image_id} \n"
            f"Region: {selected_region}\n"
@@ -1036,7 +1036,7 @@ print(f"You can view the summary of this MML Auto-EC2 Generator session here: {r
 time.sleep(1)
 print(f"You can view your instance online here: https://us-east-2.console.aws.amazon.com/ec2/v2/home?region={selected_region}#InstanceDetails:instanceId={instance_id}")
 time.sleep(1)
-print(f"You can connect to your instance via SSH with the following command: ssh -i {key_pair_location} ubuntu@{public_ip}")
+print(f"You can connect to your instance via SSH with the following command: ssh -i '{key_pair_location}' ubuntu@{public_ip}")
 time.sleep(1)
 print("Thank you for using the MML Auto-EC2 Generator! We hope you liked this MML open source offering, "
       "if you have any questions or just want to chat - join us on discord: https://discord.gg/jjDcZcqXWy!")
