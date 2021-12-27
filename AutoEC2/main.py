@@ -909,6 +909,7 @@ while sg_view_existing in no_list:
 time.sleep(1)
 
 """Create Key Pair"""
+key_pair_location = 'keypair.pem'
 confirm_key = 'n'
 while confirm_key not in yes_list:
     create_key = input(f"Do you need a new keypair.pem? If this is your first instance choose 'yes' (y/n): ")
@@ -916,9 +917,11 @@ while confirm_key not in yes_list:
         confirm_key = input(f"You've selected to create a new keypair, is this correct? (y/n): ")
         if confirm_key in yes_list:
             spin = start_spinner(busy_text='Creating Key Pair')
-            key = ec2_client.create_key_pair(KeyName=f'keypair_{secrets.token_hex(2)}', KeyType='rsa')
-            with open(f'keypair_{secrets.token_hex(2)}.pem', 'w') as file:
+            key_name = f'keypair_{secrets.token_hex(2)}'
+            key = ec2_client.create_key_pair(KeyName=key_name, KeyType='rsa')
+            with open(f'keypair_{key_name}.pem', 'w') as file:
                 file.write(key['KeyMaterial'])
+            key_pair_location = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'{key_name}.pem')
             spin.stop()
     if create_key in no_list:
         confirm_key = input(f"You've selected to not create a new keypair, is this correct? (y/n): ")
@@ -1007,7 +1010,7 @@ file = open(f"{file_name}", "w")
 file.write(f"Your MML Auto-EC2 Generator Summary\n"
            f"------------------------------------\n"
            f"Instance URL: https://us-east-2.console.aws.amazon.com/ec2/v2/home?region={selected_region}#InstanceDetails:instanceId={instance_id}"
-           f"Connect to your instance with the following command: ssh -i keypair.pem ubuntu@{public_ip} \n"
+           f"Connect to your instance with the following command: ssh -i {key_pair_location} ubuntu@{public_ip} \n"
            f"Start time: {started}, total run time: {run_time}\n"
            f"Image name: {image_id}, image ID: {image_id} \n"
            f"Region: {selected_region}\n"
@@ -1032,6 +1035,8 @@ time.sleep(1)
 print(f"You can view the summary of this MML Auto-EC2 Generator session here: {readme_location}")
 time.sleep(1)
 print(f"You can view your instance online here: https://us-east-2.console.aws.amazon.com/ec2/v2/home?region={selected_region}#InstanceDetails:instanceId={instance_id}")
+time.sleep(1)
+print(f"You can connect to your instance via SSH with the following command: ssh -i {key_pair_location} ubuntu@{public_ip}")
 time.sleep(1)
 print("Thank you for using the MML Auto-EC2 Generator! We hope you liked this MML open source offering, "
       "if you have any questions or just want to chat - join us on discord: https://discord.gg/jjDcZcqXWy!")
