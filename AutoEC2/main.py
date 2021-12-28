@@ -992,6 +992,7 @@ stop_spinner(spin, done_text=f'Elastic IP created, IP: {public_ip}')
 
 """Associate Elastic IP"""
 spin = start_spinner(busy_text=f'Associating Elastic IP with instance {instance_id}')
+time.sleep(30)
 associate_elip = ec2_client.associate_address(
     InstanceId=instance_id,
     PublicIp=public_ip,
