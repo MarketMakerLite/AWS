@@ -108,8 +108,8 @@ def get_external_ip():
 def custom_sg_rule(port, custom_ip):
     custom_rule = {
         'IpProtocol': 'tcp',
-        'FromPort': f'{port}',
-        'ToPort': f'{port}',
+        'FromPort': port,
+        'ToPort': port,
         'IpRanges': [{'CidrIp': f'{custom_ip}/0'}]
     }
     return custom_rule
@@ -872,7 +872,7 @@ while sg_view_existing in no_list:
                 add_tv = input(f'Would you like to permission TradingView IPs to allow Webhooks? (y/n): ')
                 if add_tv in yes_list:
                     tv_ips = ['52.89.214.238', '34.212.75.30', '54.218.53.128', '52.32.178.7']
-                    ports = ['80', '443']
+                    ports = [80, 443]
                     for port in ports:
                         for ip in tv_ips:
                             security_group_rules.append(custom_sg_rule(port, ip))
