@@ -798,20 +798,20 @@ while sg_view_existing in no_list:
 
     psql_rule = {
         'IpProtocol': 'tcp',
-        'FromPort': '5432',
-        'ToPort': '5432',
+        'FromPort': 5432,
+        'ToPort': 5432,
         'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
     }
     mysql_rule = {
         'IpProtocol': 'tcp',
-        'FromPort': '3306',
-        'ToPort': '3306',
+        'FromPort': 3306,
+        'ToPort': 3306,
         'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
     }
     mongodb_rule = {
         'IpProtocol': 'tcp',
-        'FromPort': '27017',
-        'ToPort': '27017',
+        'FromPort': 27017,
+        'ToPort': 27017,
         'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
     }
     rules = {1: ["Relaxed", relaxed, 'Allows all connections (0.0.0.0)'],
