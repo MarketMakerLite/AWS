@@ -113,6 +113,15 @@ def custom_sg_rule(port, custom_ip):
         'IpRanges': [{'CidrIp': f'{custom_ip}/0'}]
     }
     return custom_rule
+
+def customtv_sg_rule(port, custom_ip):
+    custom_rule = {
+        'IpProtocol': 'tcp',
+        'FromPort': port,
+        'ToPort': port,
+        'IpRanges': [{'CidrIp': f'{custom_ip}/32'}]
+    }
+    return custom_rule
 ######################################################################################################################
 #                                                    Initialize                                                      #
 ######################################################################################################################
@@ -791,7 +800,7 @@ while sg_view_existing in no_list:
          'ToPort': 80,
          'IpRanges': [{'CidrIp': f'{external_ip}/0'}]},
         {'IpProtocol': 'tcp',
-         'FromPort': 22,
+         'FromPort': 80,
          'ToPort': 22,
          'IpRanges': [{'CidrIp': f'{external_ip}/0'}]}
     ]
@@ -800,7 +809,7 @@ while sg_view_existing in no_list:
         'IpProtocol': 'tcp',
         'FromPort': 5432,
         'ToPort': 5432,
-        'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
+        'IpRanges': [{'CidrIp': '0.0.0.0/32'}]
     }
     mysql_rule = {
         'IpProtocol': 'tcp',
@@ -875,7 +884,7 @@ while sg_view_existing in no_list:
                     ports = [80, 443]
                     for port in ports:
                         for ip in tv_ips:
-                            security_group_rules.append(custom_sg_rule(port, ip))
+                            security_group_rules.append(customtv_sg_rule(port, ip))
                     break
             break
 
@@ -972,10 +981,10 @@ spin = start_spinner(busy_text='Creating Elastic IP address...')
 allocate_elip = ec2_client.allocate_address(
     # Domain='vpc' or 'standard',
     Domain='vpc',
-    Address='string',
-    PublicIpv4Pool='string',
-    NetworkBorderGroup='string',
-    CustomerOwnedIpv4Pool='string',
+    # Address='string',
+    # PublicIpv4Pool='string',
+    # NetworkBorderGroup='string',
+    # CustomerOwnedIpv4Pool='string',
     DryRun=dry_run,
 )
 public_ip = allocate_elip['PublicIp']
@@ -983,7 +992,6 @@ stop_spinner(spin, done_text=f'Elastic IP created, IP: {public_ip}')
 
 """Associate Elastic IP"""
 spin = start_spinner(busy_text=f'Associating Elastic IP with instance {instance_id}')
-instance_id = 'i-085f36a8a9b2c6bba'
 associate_elip = ec2_client.associate_address(
     InstanceId=instance_id,
     PublicIp=public_ip,
