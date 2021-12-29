@@ -43,32 +43,22 @@ def delay_print_slow(s):
     return None
 
 
-def create_key_pair(selected_region):
-    ec2_client = boto3.client("ec2", region_name=selected_region)
-    key_pair = ec2_client.create_key_pair(KeyName="ec2-key-pair")
-    private_key = key_pair["KeyMaterial"]
-    # write private key to file with 400 permissions
-    with os.fdopen(os.open("/tmp/aws_ec2_key.pem", os.O_WRONLY | os.O_CREAT, 0o400), "w+") as handle:
-        handle.write(private_key)
-    return None
-
-
-def get_running_instances():
-    ec2_client = boto3.client("ec2", region_name="us-west-2")
-    reservations = ec2_client.describe_instances(Filters=[
-        {
-            "Name": "instance-state-name",
-            "Values": ["running"],
-        }
-    ]).get("Reservations")
-    for reservation in reservations:
-        for instance in reservation["Instances"]:
-            instance_id = instance["InstanceId"]
-            instance_type = instance["InstanceType"]
-            public_ip = instance["PublicIpAddress"]
-            private_ip = instance["PrivateIpAddress"]
-            print(f"{instance_id}, {instance_type}, {public_ip}, {private_ip}")
-    return None
+# def get_running_instances():
+#     ec2_client = boto3.client("ec2", region_name="us-west-2")
+#     reservations = ec2_client.describe_instances(Filters=[
+#         {
+#             "Name": "instance-state-name",
+#             "Values": ["running"],
+#         }
+#     ]).get("Reservations")
+#     for reservation in reservations:
+#         for instance in reservation["Instances"]:
+#             instance_id = instance["InstanceId"]
+#             instance_type = instance["InstanceType"]
+#             public_ip = instance["PublicIpAddress"]
+#             private_ip = instance["PrivateIpAddress"]
+#             print(f"{instance_id}, {instance_type}, {public_ip}, {private_ip}")
+#     return None
 
 
 def load_regions():
@@ -113,6 +103,7 @@ def custom_sg_rule(port, custom_ip):
         'IpRanges': [{'CidrIp': f'{custom_ip}/0'}]
     }
     return custom_rule
+
 
 def customtv_sg_rule(port, custom_ip):
     custom_rule = {
@@ -789,8 +780,7 @@ while True:
         existing_security_groups = ec2_client.describe_security_groups()
         existing_vpcs = ec2_client.describe_vpcs().get('Vpcs', [{}])[0]['VpcId']
         spin.stop()
-        # print(existing_security_groups)
-        # print(existing_security_groups['SecurityGroups'][0])
+
         sg_view_existing = 'y'
         sg_existing_list = []
         while sg_view_existing in yes_list:
@@ -884,8 +874,6 @@ while True:
             rules = {1: ["Relaxed", relaxed, 'Allows all connections (0.0.0.0)'],
                      2: ["Strict", strict, f'Allows connections only from your IP ({external_ip})']}
             software_rules = {'Postgres': psql_rule, 'MongoDB': mongodb_rule, 'MySQL': mysql_rule}
-            # software_specifics = {1: 'Postgres', 2: 'MongoDB', 3: 'MySQL', 4: 'sqlite3', 5: 'Redis', 6: 'Docker', 7: 'Git',
-            #                      8: 'Nginx', 9: 'Caddy', 10: 'Apache', 11: 'NodeJS', 12: 'Airflow'}  # can delete this line
 
             print("First, we'll choose a base set of rules for this Security Group (we'll add custom ones next):")
             for i in rules:
@@ -952,7 +940,7 @@ while True:
             response = ec2_client.describe_vpcs()
             vpc_id = response.get('Vpcs', [{}])[0]['VpcId']
             try:
-                # Create Security Group
+                """Create Security Group"""
                 response = ec2_client.create_security_group(GroupName=security_group_name,
                                                             Description=description,
                                                             VpcId=vpc_id,
@@ -960,7 +948,7 @@ while True:
                 security_group_id = response['GroupId']
                 print(f'Created Security Group {security_group_id} in vpc {vpc_id}.')
 
-                # Set ingress rules
+                """Set Ingress Rules"""
                 data = ec2_client.authorize_security_group_ingress(
                     GroupId=security_group_id,
                     IpPermissions=security_group_rules,
@@ -988,14 +976,16 @@ while True:
                     key = ec2_client.create_key_pair(KeyName=key_name, KeyType='rsa')
                     with open(f'{key_name}.pem', 'w') as file:
                         file.write(key['KeyMaterial'])
-                    # key_pair_location = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'{key_name}.pem')
+
                     key_pair_location = os.path.join(os.path.dirname(os.path.realpath(__file__)), f'{key_name}.pem')
-                    # Check if path has spaces, if there are spaces - add quotes, if not - keep unquoted
+                    """Check if path has spaces, if there are spaces - add quotes, if not - keep unquoted"""
                     if " " in key_pair_location:
                         key_pair_location = f"'{key_pair_location}'"
                     else:
                         key_pair_location = key_pair_location
+
                     spin.stop()
+
             if create_key in no_list:
                 confirm_key = input(f"You've selected to not create a new keypair, is this correct? (y/n): ")
                 if confirm_key in yes_list:
@@ -1044,7 +1034,7 @@ stop_spinner(spin, done_text=f'Instance created, ID: {instance_id} ')
 ######################################################################################################################
 """Create Elastic IP"""
 spin = start_spinner(busy_text='Creating Elastic IP address...')
-# allocate_elip = ec2_client.allocate_address(Domain='vpc')
+
 allocate_elip = ec2_client.allocate_address(
     # Domain='vpc' or 'standard',
     Domain='vpc',
