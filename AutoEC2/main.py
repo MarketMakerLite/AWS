@@ -1073,24 +1073,24 @@ stop_spinner(spin, done_text=f'Elastic IP {public_ip} associated with instance {
 ######################################################################################################################
 #                                                 Create ReadMe File                                                 #
 ######################################################################################################################
-run_time = time.time() - start_time
+run_time = "{:.2f}".format((time.time() - start_time)/60)
 spin = start_spinner(busy_text='Creating documentation...')
 """Create #ReadMe file for end user"""
 save_date = datetime.now().strftime("%m%d%y_%I%M")
 file_name = f'Auto-EC2_Summary_{save_date}.txt'
 file = open(f"{file_name}", "w")
-file.write(f"Your MML Auto-EC2 Generator Summary\n"
-           f"------------------------------------\n"
+file.write(f"Your MML Auto-EC2 Generator Summary \n"
+           f"------------------------------------ \n"
            f"Instance URL: https://us-east-2.console.aws.amazon.com/ec2/v2/home?region={selected_region}#InstanceDetails:instanceId={instance_id} \n"
            f"Connect to your instance with the following command: ssh -i '{key_pair_location}' ubuntu@{public_ip} \n"
-           f"Start time: {started}, total run time: {run_time}\n"
+           f"Start time: {started}, total run time: {run_time} minutes \n"
            f"Image name: {image_id}, image ID: {image_id} \n"
-           f"Region: {selected_region}\n"
-           f"Instance type: {selected_type}\n"
-           f"Subnet: {selected_subnet}\n"
-           f"Root volume details: {block_device_mappings}\n"
+           f"Region: {selected_region} \n"
+           f"Instance type: {selected_type} \n"
+           f"Subnet: {selected_subnet} \n"
+           f"Root volume details: {block_device_mappings} \n"
            f"Elastic IP address: {public_ip} \n"
-           f"------------------------------------\n"
+           f"------------------------------------ \n"
            f"Thank you for using the MML Auto-EC2 Generator! We hope you liked this MML open source offering, if you "
            f"have any questions or just want to chat - join us on discord: https://discord.gg/jjDcZcqXWy! \n"
            f"To support our development, please consider subscribing at https://marketmakerlite.com/subscribe \n"
