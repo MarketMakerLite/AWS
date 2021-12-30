@@ -792,7 +792,7 @@ while True:
                 sg_confirm = 'n'
                 while sg_confirm not in yes_list:
                     try:
-                        for i in range(1, len(sg_existing_dict)):
+                        for i in range(1, len(sg_existing_dict)+1):
                             print(f"{i}. {sg_existing_dict[i]}")
                         sg_selection = input(f'Please enter a Security Group to use (1-{len(sg_existing_dict)}), or \'new\' to exit and create a new group: ')
                         if sg_selection in no_list:
