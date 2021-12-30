@@ -1026,7 +1026,7 @@ response = ec2_client.run_instances(
     ],
     DryRun=dry_run
     )
-instance_id = response[0].id
+instance_id = response["Instances"][0]['InstanceId']
 stop_spinner(spin, done_text=f'Instance created, ID: {instance_id} ')
 
 ######################################################################################################################
