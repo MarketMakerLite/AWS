@@ -5,6 +5,7 @@ THIS CODE IS PROVIDED AS IS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND
 This file is part of the MML Open Source Library (www.github.com/MarketMakerLite)
 --------------------------------------------------------------------------------------------------------------------"""
 import boto3
+from botocore import exceptions as bc
 from halo import Halo
 import time
 import sys
@@ -138,74 +139,73 @@ input(f"Press any key to continue")
 #                                                       Login                                                        #
 ######################################################################################################################
 """Login or Configure AWS"""
-while True:
-    try:
-        sts = boto3.client('sts')
-        cid = sts.get_caller_identity()
-        ec2_client = boto3.client('ec2')
-        default_region = ec2_client.meta.region_name
-        print(f"Credentials are valid. Logged in as {cid['UserId']}. Your default region is {default_region}.")
-        break
+try:
+    sts = boto3.client('sts')
+    cid = sts.get_caller_identity()
+    ec2_client = boto3.client('ec2')
+    default_region = ec2_client.meta.region_name
+    print(f"Credentials are valid. Logged in as {cid['UserId']}. Your default region is {default_region}.")
 
-    except Exception:
-        print("AWS-CLI configuration not found. Please login to continue. You will need your AWS Access Key ID and AWS Secret Access Key. "
-              "If you do not have access to your credentials, please create a new access key here:"
-              "https://console.aws.amazon.com/iam/home?#/security_credentials")
+except bc.NoCredentialsError:
+    print("AWS-CLI configuration not found. Please login to continue. You will need your AWS Access Key ID and AWS Secret Access Key. "
+          "If you do not have access to your credentials, please create a new access key here:"
+          "https://console.aws.amazon.com/iam/home?#/security_credentials")
 
-        while True:
-            aws_access_key_id = input("Please enter your AWS Access Key ID (e.g. BRLO5fZMGMLRZV843HX9): ")
-            aws_access_key_id = aws_access_key_id.replace(" ", "").replace("-", "").replace(",", "").replace(".", "")
-            key_check = input(f"You've entered '{aws_access_key_id}', is this correct (y/n): ")
-            if key_check in yes_list:
-                break
-            print("Please try again")
-        while True:
-            aws_secret_access_key = input(
-                "Please enter your AWS Secret Access Key (e.g. K3FH68epJG0LglLT7hYtMfr4nXFWsB5zKSipLZWm): ")
-            aws_secret_access_key = aws_secret_access_key.replace(" ", "").replace("-", "").replace(",", "").replace(".",
-                                                                                                                     "")
-            key_check = input(f"You've entered '{aws_secret_access_key}', is this correct (y/n): ")
-            if key_check in yes_list:
-                break
-            print("Please try again")
-        while True:
-            print("Next, we will choose a default region, to review a list of all available regions please visit this link: "
-                  "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions")
-            time.sleep(1)
-            account_region = input("Please enter your default region (e.g. us-east-2): ")
-            account_region = account_region.replace(" ", "").replace(",", "").replace(".", "")
-            key_check = input(f"You've entered '{account_region}', is this correct (y/n): ")
-            if key_check in yes_list:
-                break
-            print("Please try again")
+    while True:
+        aws_access_key_id = input("Please enter your AWS Access Key ID (e.g. BRLO5fZMGMLRZV843HX9): ")
+        aws_access_key_id = aws_access_key_id.replace(" ", "").replace("-", "").replace(",", "").replace(".", "")
+        key_check = input(f"You've entered '{aws_access_key_id}', is this correct (y/n): ")
+        if key_check in yes_list:
+            break
+        print("Please try again")
+    while True:
+        aws_secret_access_key = input(
+            "Please enter your AWS Secret Access Key (e.g. K3FH68epJG0LglLT7hYtMfr4nXFWsB5zKSipLZWm): ")
+        aws_secret_access_key = aws_secret_access_key.replace(" ", "").replace("-", "").replace(",", "").replace(".",
+                                                                                                                 "")
+        key_check = input(f"You've entered '{aws_secret_access_key}', is this correct (y/n): ")
+        if key_check in yes_list:
+            break
+        print("Please try again")
+    while True:
+        print("Next, we will choose a default region, to review a list of all available regions please visit this link: "
+              "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions")
+        time.sleep(1)
+        account_region = input("Please enter your default region (e.g. us-east-2): ")
+        account_region = account_region.replace(" ", "").replace(",", "").replace(".", "")
+        key_check = input(f"You've entered '{account_region}', is this correct (y/n): ")
+        if key_check in yes_list:
+            break
+        print("Please try again")
 
-        """Creating Files"""
-        print("We will now create your AWS credential files")
-        """Check if .aws folder exists"""
-        aws_path = os.path.join(os.path.expanduser('~'), '.aws')
-        dir_exists = os.path.isdir(aws_path)
-        """Create folder if it doesn't exist"""
-        if not dir_exists:
-            os.makedirs(aws_path)
+    """Creating Files"""
+    print("We will now create your AWS credential files")
+    """Check if .aws folder exists"""
+    aws_path = os.path.join(os.path.expanduser('~'), '.aws')
+    dir_exists = os.path.isdir(aws_path)
+    """Create folder if it doesn't exist"""
+    if not dir_exists:
+        os.makedirs(aws_path)
 
-        """Set paths"""
-        aws_path = os.path.join(os.path.expanduser('~'), '.aws')
-        config_path = os.path.join(os.path.join(os.path.expanduser('~'), '.aws'), 'config')
-        credentials_path = os.path.join(os.path.join(os.path.expanduser('~'), '.aws'), 'credentials')
+    """Set paths"""
+    aws_path = os.path.join(os.path.expanduser('~'), '.aws')
+    config_path = os.path.join(os.path.join(os.path.expanduser('~'), '.aws'), 'config')
+    credentials_path = os.path.join(os.path.join(os.path.expanduser('~'), '.aws'), 'credentials')
 
-        spin = start_spinner(busy_text=f'Creating config & credentials file in {aws_path}...')
-        with open(config_path, "w") as config_file:
-            config_file.write("[default]\n")
-            config_file.write(f"region = {account_region}\n")
+    spin = start_spinner(busy_text=f'Creating config & credentials file in {aws_path}...')
+    with open(config_path, "w") as config_file:
+        config_file.write("[default]\n")
+        config_file.write(f"region = {account_region}\n")
 
-        with open(credentials_path, "w") as credentials_file:
-            credentials_file.write("[default]\n")
-            credentials_file.write(f"aws_access_key_id = {aws_access_key_id}\n")
-            credentials_file.write(f"aws_secret_access_key = {aws_secret_access_key}\n")
+    with open(credentials_path, "w") as credentials_file:
+        credentials_file.write("[default]\n")
+        credentials_file.write(f"aws_access_key_id = {aws_access_key_id}\n")
+        credentials_file.write(f"aws_secret_access_key = {aws_secret_access_key}\n")
 
-        time.sleep(2)
-        spin.stop()
-        continue
+    ec2_client = boto3.client('ec2', region_name=account_region)
+    default_region = ec2_client.meta.region_name
+    time.sleep(2)
+    spin.stop()
 
 time.sleep(1)
 ######################################################################################################################
@@ -255,7 +255,7 @@ while True:
                     for key, value in region_dict.items():
                         print(f"{key}. {value}")
                     time.sleep(.5)
-                    print("Please review the available regions from the list above, the default region is us-east-2 (#15): ")
+                    print(f"Please review the available regions from the list above, the default region is {default_region} (#{default_region_number}: ")
                     time.sleep(0.5)
                     while sel2 not in yes_list:
                         try:
@@ -577,8 +577,7 @@ time.sleep(1)
 #####################################################################################################################
 while True:
     try:
-        base_user_data = '''
-        #!/bin/bash
+        base_user_data = '''#!/bin/bash
         #
         #Apply updates
         apt -y update
