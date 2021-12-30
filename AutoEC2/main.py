@@ -90,7 +90,7 @@ def print_instance_types(ec2_client):
 
 def get_external_ip():
     spin = start_spinner(busy_text='Getting your external IP address...')
-    external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
+    external_ip = urllib.request.urlopen('http://ident.me').read().decode('utf8')
     spin.stop()
     return external_ip
 
