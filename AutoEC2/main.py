@@ -694,7 +694,6 @@ while True:
                     }
         software_choice = {1: 'Plain (No software)', 2: 'Basics (PostgreSQL, Redis)', 3: 'Nosql (MongoDB, Redis)',
                            4: 'Extras (PostgreSQL, Redis, Git, Docker, Caddy)', 5: 'Custom (Choose software from list)'}
-        software_selection = {1: 'user_data_plain', 2: 'user_data_basic', 3: 'user_data_premium', 4: 'user_data_advanced'}
 
         software_specifics = {1: 'Postgres', 2: 'MongoDB', 3: 'MySQL', 4: 'sqlite3', 5: 'Redis', 6: 'Docker', 7: 'Git',
                               8: 'Nginx', 9: 'Caddy', 10: 'Apache', 11: 'NodeJS', 12: 'Airflow'}
