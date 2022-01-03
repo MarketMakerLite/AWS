@@ -101,7 +101,7 @@ def custom_sg_rule(port, custom_ip):
         'IpProtocol': 'tcp',
         'FromPort': port,
         'ToPort': port,
-        'IpRanges': [{'CidrIp': f'{custom_ip}/0'}]
+        'IpRanges': [{'CidrIp': f'{custom_ip}/32'}]
     }
     return custom_rule
 
