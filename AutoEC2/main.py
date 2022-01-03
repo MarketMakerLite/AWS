@@ -848,7 +848,7 @@ while True:
                 'IpProtocol': '-1',
                 'FromPort': -1,
                 'ToPort': -1,
-                'IpRanges': [{'CidrIp': f'{external_ip}/0'}]
+                'IpRanges': [{'CidrIp': f'{external_ip}/32'}]
             }
 
             psql_rule = {
@@ -1071,7 +1071,7 @@ file_name = f'Auto-EC2_Summary_{save_date}.txt'
 with open(f"{file_name}", "w") as readme_file:
     readme_file.write(f"Your MML Auto-EC2 Generator Summary \n"
        f"------------------------------------ \n"
-       f"Instance URL: https://us-east-2.console.aws.amazon.com/ec2/v2/home?region={selected_region}#InstanceDetails:instanceId={instance_id} \n"
+       f"Instance URL: https://{selected_region}.console.aws.amazon.com/ec2/v2/home?region={selected_region}#InstanceDetails:instanceId={instance_id} \n"
        f"Connect to your instance with the following command: ssh -i {key_pair_location} ubuntu@{public_ip} \n"
        f"Start time: {started}, total run time: {run_time} minutes \n"
        f"Image name: {image_id}, image ID: {image_id} \n"
